@@ -15,6 +15,7 @@ extern "C" {
 		kChangePipeTemperature,
 		kChangeMinimalTemperature
 	} SettingParamsProcess_t;
+	
 	SettingParamsProcess_t Controllers_setParams(void);
 	bool Controllers_internalContourProcess(void);
 	bool Controllers_externalContourProcess(void);

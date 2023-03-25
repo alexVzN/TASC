@@ -13,8 +13,10 @@
 #include "cmsis_os.h"
 
 #define CHANGE_VALUES_TIMEOUT_S 5
+#define CHANGE_VALVE_TIMEOUT_S 3
 
 uint32_t countdownCounter = 0;
+uint32_t valveTimeoutCounter = 0;
 SettingParamsProcess_t changeValues = kNotChanging;
 
 void resetCountdown(void)
@@ -41,6 +43,13 @@ void enableContour(int8_t pipeTemperature, int8_t watertankTemperature)
 		Outputs_set3WayValvePosition(pipeLackTemperature);
 	}
 
+	if (osKernelGetSysTimerCount() - valveTimeoutCounter < CHANGE_VALVE_TIMEOUT_S * osKernelGetSysTimerFreq())
+	{
+		return;
+	}
+	
+	valveTimeoutCounter = osKernelGetSysTimerCount();
+	
 	if (Outputs_get3WayValveOnProcess() || abs(pipeLackTemperature) < 2)
 	{
 		return;
