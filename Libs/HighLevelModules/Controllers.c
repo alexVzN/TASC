@@ -13,7 +13,7 @@
 #include "cmsis_os.h"
 
 #define CHANGE_VALUES_TIMEOUT_S 5
-#define CHANGE_VALVE_TIMEOUT_S 15
+#define CHANGE_VALVE_TIMEOUT_COEFF_S 10
 
 uint32_t countdownCounter = 0;
 uint32_t valveTimeoutCounter = 0;
@@ -48,7 +48,7 @@ void enableContour(int8_t pipeTemperature, int8_t watertankTemperature)
 		return;
 	}
 	
-	if (osKernelGetSysTimerCount() - valveTimeoutCounter < CHANGE_VALVE_TIMEOUT_S * osKernelGetSysTimerFreq())
+	if (osKernelGetSysTimerCount() - valveTimeoutCounter < pipeLackTemperature * CHANGE_VALVE_TIMEOUT_COEFF_S * osKernelGetSysTimerFreq())
 	{
 		return;
 	}
