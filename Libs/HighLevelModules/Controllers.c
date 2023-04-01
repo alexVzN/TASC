@@ -13,7 +13,7 @@
 #include "cmsis_os.h"
 
 #define CHANGE_VALUES_TIMEOUT_S 5
-#define CHANGE_VALVE_TIMEOUT_S 3
+#define CHANGE_VALVE_TIMEOUT_S 15
 
 uint32_t countdownCounter = 0;
 uint32_t valveTimeoutCounter = 0;
@@ -42,18 +42,20 @@ void enableContour(int8_t pipeTemperature, int8_t watertankTemperature)
 		Outputs_setOutsidePumpStatus(true);
 		Outputs_set3WayValvePosition(pipeLackTemperature);
 	}
-
-	if (osKernelGetSysTimerCount() - valveTimeoutCounter < CHANGE_VALVE_TIMEOUT_S * osKernelGetSysTimerFreq())
-	{
-		return;
-	}
-	
-	valveTimeoutCounter = osKernelGetSysTimerCount();
 	
 	if (Outputs_get3WayValveOnProcess() || abs(pipeLackTemperature) < 2)
 	{
 		return;
 	}
+	
+	if (osKernelGetSysTimerCount() - valveTimeoutCounter < CHANGE_VALVE_TIMEOUT_S * osKernelGetSysTimerFreq())
+	{
+		return;
+	}
+
+	valveTimeoutCounter = osKernelGetSysTimerCount();
+	printf("Pipe temperature: %d\n", pipeTemperature);
+	printf("Tank temperature: %d\n", watertankTemperature);
 	
 	int currentPosition = Outputs_get3WayValveCurrentPosition();
 	if (MM_getPipeTemperature() > watertankTemperature) {
@@ -93,9 +95,11 @@ SettingParamsProcess_t Controllers_setParams(void)
 			if (changeValues == kChangePipeTemperature) {
 				int value = MM_getPipeTemperature() + valueForUpdating;
 				MM_setPipeTemperature(value);
+				printf("New pipe temperature: %d\n", value);
 			} else if (changeValues == kChangeMinimalTemperature) {
 				int value = MM_getMinimalTankTemperature() + valueForUpdating;
 				MM_setMinimalTankTemperature(value);
+				printf("New minimal tank temperature: %d\n", value);
 			}
 		}
 	}
@@ -111,20 +115,24 @@ SettingParamsProcess_t Controllers_setParams(void)
 bool Controllers_internalContourProcess(void)
 {
 	int8_t boilerTemperature = ThermalSensors_boiler();
-	int8_t waterrtankTemperature = ThermalSensors_watertank(0);
+	int8_t watertankTemperature = ThermalSensors_watertank(0);
 
-	if (boilerTemperature == kNotRead || waterrtankTemperature == kNotRead)
+	if (boilerTemperature == kNotRead || watertankTemperature == kNotRead)
 	{
 		Outputs_setInsidePumpStatus(true);
 		return false;
 	}
 	
-	if (boilerTemperature > waterrtankTemperature) {
+	if (boilerTemperature > watertankTemperature) {
 		if (!Outputs_getInsidePumpStatus()) {
+			printf("Boiler temperature: %d\n", boilerTemperature);
+			printf("Tank temperature: %d\n", watertankTemperature);
 			Outputs_setInsidePumpStatus(true);
 		}
 	} else {
 		if (Outputs_getInsidePumpStatus()) {
+			printf("Boiler temperature: %d\n", boilerTemperature);
+			printf("Tank temperature: %d\n", watertankTemperature);
 			Outputs_setInsidePumpStatus(false);
 		}
 	}

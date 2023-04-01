@@ -98,10 +98,10 @@ int _fstat(int file, struct stat *st)
 	return 0;
 }
 
-int _isatty(int file)
-{
-	return 1;
-}
+//int _isatty(int file)
+//{
+//	return 1;
+//}
 
 int _lseek(int file, int ptr, int dir)
 {

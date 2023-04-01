@@ -27,6 +27,18 @@ void ML_match(void)
 	if (StateInputs_switchMatchTarget()) {
 		matcedValue = kNotFound;
 		matchPosition = ThermalSensors_matchNext();
+		if (matchPosition < 7)
+		{
+			printf("Match tank sensor %d\n", matchPosition + 1);
+		}
+		else if (matchPosition == 7)
+		{
+			printf("Match boiler sensor\n");
+		}
+		else
+		{
+			printf("Match pipe sensor\n");
+		}
 	}
 	
 	if (prevPosition != matchPosition) {
@@ -43,8 +55,10 @@ void ML_match(void)
 		if (matcedValue == kNotFound) {
 			IndicatorsDriver_setSmallNumber(matchPosition, 0, kLoad);
 		} else if (matcedValue == kNotRead) {
+			printf("Matching error\n");
 			IndicatorsDriver_setSmallNumber(matchPosition, 0, kError);
 		} else {
+			printf("Matching successful\n");
 			IndicatorsDriver_setSmallNumber(matchPosition, matcedValue, kStandart);
 		}
 	} else {
@@ -52,8 +66,10 @@ void ML_match(void)
 		if (matcedValue == kNotFound) {
 			IndicatorsDriver_setBigNumber(0, kLoad);
 		} else if (matcedValue == kNotRead) {
+			printf("Matching error\n");
 			IndicatorsDriver_setBigNumber(0, kError);
 		} else {
+			printf("Matching successful\n");
 			IndicatorsDriver_setBigNumber(matcedValue, kStandart);
 		}
 
@@ -123,6 +139,7 @@ bool ML_startMatch(void)
 {
 	if (blinkTimeoutCounter == 0)
 	{
+		printf("\nStart match\n");
 		blinkTimeoutCounter = osKernelGetSysTimerCount();
 		IndicatorsDriver_setStatusForAll(kBlink);
 	} else if (osKernelGetSysTimerCount() - blinkTimeoutCounter > BLINK_MAX_COUNT_S * osKernelGetSysTimerFreq()) {
@@ -137,6 +154,7 @@ bool ML_startMatch(void)
 
 bool ML_stopMatch(void)
 {
+	printf("\nStop match\n");
 	ThermalSensors_stopMatch();
 	blinkTimeoutCounter = 0;
 	MM_setUids(ThermalSensors_uids());

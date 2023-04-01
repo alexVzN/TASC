@@ -3,6 +3,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include <stdio.h>
+
 #include "Helpers/RTOSWD.h"
 
 #define FULL_CICLE_TIME_S	35.0
@@ -51,6 +53,7 @@ void Outputs_init(void)
 
 void Outputs_setInsidePumpStatus(bool enable)
 {
+	printf(enable ? "Inside pump enable\n" : "Inside pump disable\n");
 	HAL_GPIO_WritePin(CH3_SSR_GPIO_Port, CH3_SSR_Pin, enable ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 
@@ -61,6 +64,7 @@ bool Outputs_getInsidePumpStatus(void)
 
 void Outputs_setOutsidePumpStatus(bool enable)
 {
+	printf(enable ? "Outside pump enable\n" : "Outside pump disable\n");
 	HAL_GPIO_WritePin(CH2_SSR_GPIO_Port, CH2_SSR_Pin, enable ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 
@@ -71,6 +75,7 @@ bool Outputs_getOutsidePumpStatus(void)
 
 void Outputs_set3WayValvePosition(uint8_t position)
 {
+	printf("Set valve position: %d/100\n", position);
 	osMutexWait(valveMutexId, portMAX_DELAY);
 	setPosition = position > 100 ? 100 : position;		
 	osMutexRelease(valveMutexId);
@@ -139,6 +144,9 @@ void valveControllerTask(void *argument)
 		}
 		else
 		{
+			if (valveProcess != kNone)
+				printf("Setting position finished: current postion = %d/100\n", currentPosition);
+			
 			if (isResetting)
 				isResetting = false;
 

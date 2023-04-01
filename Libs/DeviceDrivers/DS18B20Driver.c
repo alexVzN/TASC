@@ -3,6 +3,7 @@
 #include "main.h"
 #include <string.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "cmsis_os.h"
 #include "task.h"
@@ -326,6 +327,14 @@ int8_t OneWire_getTemperature(uint8_t* addr) {
 		float temp = (((uint16_t)buff[1] << 8) | buff[0]) * 0.0625;
 		value = (int8_t)temp;
 	}
+	else
+	{
+		uint64_t address = *((uint64_t*)addr);
+		if (address != 0)
+		{
+			printf("Device: %" PRIX64 " crc error\n", address);	
+		}
+	}
 
 	return value;
 }
@@ -424,7 +433,7 @@ void DS18B20Driver_setMode(DS18B20_mode mode)
 
 void readSensorsControllerTask(void *argument)
 {
-	printf("Start measurement");
+	printf("Start measurement\n");
 	RTOSWD_add();
 	
 	ONEWIRE_DELAY(10);
@@ -486,7 +495,7 @@ void readSensorsControllerTask(void *argument)
 								hasNewDevice = true;
 								osMutexRelease(readMutexId);
 							} else {
-								printf("Error!!!");
+								printf("Error!!!\n");
 							}
 						}
 						
