@@ -123,7 +123,7 @@ void IndicatorsDriver_setStatusForAll(IndicatorStatus status)
 void IndicatorsDriver_setSmallNumber(uint8_t indicatorNumber, uint8_t value, IndicatorStatus status)
 {
 	osMutexWait(mutexId, portMAX_DELAY);
-	indicatorValues.smallIndicators[indicatorNumber].value = value;
+	indicatorValues.smallIndicators[indicatorNumber].value = value > 99 ? 99 : value;
 	indicatorValues.smallIndicators[indicatorNumber].status = status;
 	osMutexRelease(mutexId);
 }
@@ -131,7 +131,7 @@ void IndicatorsDriver_setSmallNumber(uint8_t indicatorNumber, uint8_t value, Ind
 void IndicatorsDriver_setBigNumber(uint8_t value, IndicatorStatus status)
 {
 	osMutexWait(mutexId, portMAX_DELAY);
-	indicatorValues.bigIndicators.value = value;
+	indicatorValues.bigIndicators.value = value > 99 ? 99 : value;
 	indicatorValues.bigIndicators.status = status;
 	osMutexRelease(mutexId);
 }

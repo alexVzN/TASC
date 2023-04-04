@@ -123,7 +123,14 @@ bool Controllers_internalContourProcess(void)
 		return false;
 	}
 	
-	if (boilerTemperature > watertankTemperature) {
+	if (boilerTemperature > 97)
+	{
+		if (!Outputs_getInsidePumpStatus()) {
+			printf("Boiler temperature: %d\n", boilerTemperature);
+			printf("Tank temperature: %d\n", watertankTemperature);
+			Outputs_setInsidePumpStatus(true);
+		}
+	} else if (boilerTemperature > watertankTemperature) {
 		if (!Outputs_getInsidePumpStatus()) {
 			printf("Boiler temperature: %d\n", boilerTemperature);
 			printf("Tank temperature: %d\n", watertankTemperature);

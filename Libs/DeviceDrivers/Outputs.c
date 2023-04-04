@@ -76,6 +76,9 @@ bool Outputs_getOutsidePumpStatus(void)
 void Outputs_set3WayValvePosition(uint8_t position)
 {
 	printf("Set valve position: %d/100\n", position);
+	if (position > 130)
+		return;
+
 	osMutexWait(valveMutexId, portMAX_DELAY);
 	setPosition = position > 100 ? 100 : position;		
 	osMutexRelease(valveMutexId);
